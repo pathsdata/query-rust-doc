@@ -33,9 +33,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Apache DataFusion'
-copyright = '2019-2025, Apache Software Foundation'
-author = 'Apache Software Foundation'
+project = 'PATHSDATA'
+copyright = '2025, PATHSDATA'
+author = 'PATHSDATA'
 
 
 # -- General configuration ---------------------------------------------------
@@ -90,10 +90,10 @@ html_theme_options = {
 }
 
 html_context = {
-    "github_user": "apache",
-    "github_repo": "arrow-datafusion",
+    "github_user": "pathsdata",
+    "github_repo": "query-rust-doc",
     "github_version": "main",
-    "doc_path": "docs/source",
+    "doc_path": "source",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
