@@ -379,6 +379,130 @@ SET iceberg.parallel_manifest_reads = false;
 - Each concurrent file read buffers batches in memory
 - For a 20GB table scan with default settings: ~100-200 MB memory (not 20GB)
 
+## SQL SET Commands Reference
+
+All configuration options can be set at runtime using SQL SET commands. This provides a convenient way to tune settings without restarting your session.
+
+### AWS Configuration (SET aws.*)
+
+```sql
+-- Region and credentials
+SET aws.region = 'us-east-1';
+SET aws.access_key_id = 'AKIA...';
+SET aws.secret_access_key = '...';
+SET aws.session_token = '...';
+
+-- Role assumption
+SET aws.role_arn = 'arn:aws:iam::123456789012:role/MyRole';
+SET aws.role_session_name = 'pathsdata-session';
+SET aws.external_id = 'my-external-id';
+
+-- Profile and endpoint
+SET aws.profile_name = 'my-profile';
+SET aws.endpoint = 'http://localhost:4566';
+
+-- S3 Connection Pool Settings
+SET aws.s3_pool_max_idle_per_host = 100;
+SET aws.s3_pool_idle_timeout_secs = 90;
+SET aws.s3_connect_timeout_secs = 5;
+SET aws.s3_request_timeout_secs = 300;
+SET aws.s3_http2_keep_alive_interval_secs = 10;
+SET aws.s3_http2_keep_alive_timeout_secs = 30;
+SET aws.s3_http2_keep_alive_while_idle = true;
+```
+
+#### AWS SET Options Reference
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `aws.region` | string | - | AWS region (e.g., "us-east-1") |
+| `aws.access_key_id` | string | - | AWS access key ID |
+| `aws.secret_access_key` | string | - | AWS secret access key |
+| `aws.session_token` | string | - | Session token for temporary credentials |
+| `aws.role_arn` | string | - | IAM role ARN for role assumption |
+| `aws.role_session_name` | string | - | Session name when assuming role |
+| `aws.external_id` | string | - | External ID for cross-account access |
+| `aws.profile_name` | string | - | AWS profile from ~/.aws/credentials |
+| `aws.endpoint` | string | - | Custom AWS endpoint URL |
+| `aws.s3_pool_max_idle_per_host` | int | 100 | Max idle connections per S3 host |
+| `aws.s3_pool_idle_timeout_secs` | int | 90 | Idle connection timeout (seconds) |
+| `aws.s3_connect_timeout_secs` | int | 5 | Connection timeout (seconds) |
+| `aws.s3_request_timeout_secs` | int | 300 | Request timeout (seconds) |
+| `aws.s3_http2_keep_alive_interval_secs` | int | 10 | HTTP/2 keep-alive ping interval |
+| `aws.s3_http2_keep_alive_timeout_secs` | int | 30 | HTTP/2 keep-alive timeout |
+| `aws.s3_http2_keep_alive_while_idle` | bool | true | Enable keep-alive for idle connections |
+
+### Iceberg Configuration (SET iceberg.*)
+
+```sql
+-- Read parallelism
+SET iceberg.max_concurrent_files = 16;
+SET iceberg.parallel_manifest_reads = true;
+
+-- Write parallelism
+SET iceberg.max_concurrent_partitions = 32;
+SET iceberg.max_concurrent_writers = 10;
+
+-- Buffering
+SET iceberg.buffer_size = 4;
+```
+
+#### Iceberg SET Options Reference
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `iceberg.max_concurrent_files` | int | 4 | Max data files to read in parallel |
+| `iceberg.max_concurrent_partitions` | int | 8 | Max partitions to write in parallel |
+| `iceberg.max_concurrent_writers` | int | 10 | Max concurrent write operations |
+| `iceberg.buffer_size` | int | 2 | Record batches buffered per stream |
+| `iceberg.parallel_manifest_reads` | bool | true | Enable parallel manifest reading |
+
+### DataFusion Execution Configuration (SET datafusion.*)
+
+```sql
+-- Parallelism
+SET datafusion.execution.target_partitions = 8;
+SET datafusion.execution.batch_size = 8192;
+
+-- Memory
+SET datafusion.execution.memory_limit = '4GB';
+SET datafusion.execution.sort_spill_reservation_bytes = 10485760;
+
+-- Parquet optimizations
+SET datafusion.execution.parquet.pushdown_filters = true;
+SET datafusion.execution.parquet.reorder_filters = true;
+SET datafusion.execution.parquet.enable_page_index = true;
+SET datafusion.execution.parquet.pruning = true;
+SET datafusion.execution.parquet.bloom_filter_on_read = true;
+```
+
+#### DataFusion SET Options Reference
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `datafusion.execution.target_partitions` | int | CPU cores | Query parallelism level |
+| `datafusion.execution.batch_size` | int | 8192 | Rows per batch |
+| `datafusion.execution.memory_limit` | string | - | Memory limit (e.g., "4GB") |
+| `datafusion.execution.coalesce_batches` | bool | true | Combine small batches |
+| `datafusion.execution.collect_statistics` | bool | true | Collect query statistics |
+| `datafusion.execution.parquet.pushdown_filters` | bool | true | Push filters to Parquet reader |
+| `datafusion.execution.parquet.reorder_filters` | bool | true | Optimize filter order |
+| `datafusion.execution.parquet.enable_page_index` | bool | true | Use page-level statistics |
+| `datafusion.execution.parquet.pruning` | bool | true | Enable row group pruning |
+| `datafusion.execution.parquet.bloom_filter_on_read` | bool | true | Use bloom filters |
+
+### Viewing Current Settings
+
+```sql
+-- Show all settings
+SHOW ALL;
+
+-- Show specific setting
+SHOW iceberg.max_concurrent_files;
+SHOW aws.region;
+SHOW datafusion.execution.target_partitions;
+```
+
 ## Environment Variable Reference
 
 ### AWS Variables
