@@ -1,0 +1,9 @@
+{
+  "name": "query-rust-docs",
+  "version": "1.0.0",
+  "description": "PathsData Query Engine Documentation",
+  "scripts": {
+    "build": "bash build.sh"
+  },
+  "private": true
+}
