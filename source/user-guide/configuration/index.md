@@ -1,6 +1,6 @@
 # Configuration Reference
 
-PathsData provides flexible configuration options for AWS credentials, S3 access, query execution, and catalog settings.
+PATHSDATA provides flexible configuration options for AWS credentials, S3 access, query execution, and catalog settings.
 
 ## Configuration Hierarchy
 
@@ -56,7 +56,7 @@ ctx = SessionContext({
 
 ### AWS Credential Chain
 
-When explicit credentials are not provided, PathsData uses the AWS SDK credential chain:
+When explicit credentials are not provided, PATHSDATA uses the AWS SDK credential chain:
 
 1. **Environment variables**
    - `AWS_ACCESS_KEY_ID`

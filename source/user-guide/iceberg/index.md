@@ -1,6 +1,6 @@
 # Apache Iceberg User Guide
 
-PathsData provides native Apache Iceberg support with full read/write capabilities, ACID transactions, and time travel queries.
+PATHSDATA provides native Apache Iceberg support with full read/write capabilities, ACID transactions, and time travel queries.
 
 ## Supported Catalogs
 

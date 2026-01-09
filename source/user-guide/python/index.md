@@ -1,6 +1,6 @@
 # Python API Reference
 
-PathsData provides comprehensive Python bindings via PyO3, offering a Pythonic interface to the high-performance Rust query engine.
+PATHSDATA provides comprehensive Python bindings via PyO3, offering a Pythonic interface to the high-performance Rust query engine.
 
 ## Installation
 

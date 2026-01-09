@@ -1,6 +1,6 @@
-# PathsData Documentation
+# PATHSDATA Documentation
 
-PathsData is a high-performance query engine built on Apache DataFusion with native support for Apache Iceberg and LanceDB. Query your data lake with full ACID transactions, time travel, and lightning-fast performance.
+PATHSDATA is a high-performance query engine built on Apache DataFusion with native support for Apache Iceberg and LanceDB. Query your data lake with full ACID transactions, time travel, and lightning-fast performance.
 
 ## Features
 
@@ -115,6 +115,6 @@ datafusion = { version = "45.0", features = ["iceberg"] }
 
 ## License
 
-PathsData is proprietary software. All rights reserved.
+PATHSDATA is proprietary software. All rights reserved.
 
-For licensing inquiries, please contact the PathsData team.
+For licensing inquiries, please contact the PATHSDATA team.

@@ -1,6 +1,6 @@
 # SQL Reference
 
-PathsData supports a comprehensive SQL dialect based on Apache DataFusion with extensions for Iceberg and LanceDB operations.
+PATHSDATA supports a comprehensive SQL dialect based on Apache DataFusion with extensions for Iceberg and LanceDB operations.
 
 > **For Iceberg-specific SQL (CREATE TABLE, INSERT, UPDATE, DELETE, MERGE, etc.), see the [Iceberg SQL Reference](iceberg-sql.md)**
 

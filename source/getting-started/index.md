@@ -1,6 +1,6 @@
 # Getting Started
 
-PathsData is a high-performance query engine built on Apache DataFusion with native support for Apache Iceberg and LanceDB. It provides both Python and Rust APIs for querying data lakes with full ACID transaction support.
+PATHSDATA is a high-performance query engine built on Apache DataFusion with native support for Apache Iceberg and LanceDB. It provides both Python and Rust APIs for querying data lakes with full ACID transaction support.
 
 ## Quick Start
 

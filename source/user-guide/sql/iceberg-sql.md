@@ -1,6 +1,6 @@
 # Iceberg SQL Reference
 
-Complete SQL syntax for Apache Iceberg operations in PathsData.
+Complete SQL syntax for Apache Iceberg operations in PATHSDATA.
 
 ## CREATE TABLE
 

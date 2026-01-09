@@ -1,6 +1,6 @@
 # User Guide
 
-Comprehensive guides for using PathsData effectively.
+Comprehensive guides for using PATHSDATA effectively.
 
 ## Guides
 
