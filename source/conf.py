@@ -87,6 +87,9 @@ html_theme = 'pydata_sphinx_theme'
 
 html_theme_options = {
     "use_edit_page_button": True,
+    "show_toc_level": 2,
+    "navigation_depth": 4,
+    "show_nav_level": 2,
 }
 
 html_context = {
@@ -107,10 +110,10 @@ html_css_files = [
     "theme_overrides.css"
 ]
 
-# Use default pydata-sphinx-theme navigation
-# html_sidebars = {
-#     "**": ["docs-sidebar.html"],
-# }
+# Sidebar configuration for pydata-sphinx-theme
+html_sidebars = {
+    "**": ["search-field.html", "sidebar-nav-bs.html"],
+}
 
 # tell myst_parser to auto-generate anchor links for headers h1, h2, h3
 myst_heading_anchors = 3
