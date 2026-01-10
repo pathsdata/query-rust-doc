@@ -110,9 +110,9 @@ html_css_files = [
     "theme_overrides.css"
 ]
 
-# Sidebar configuration for pydata-sphinx-theme
+# Sidebar configuration
 html_sidebars = {
-    "**": ["search-field.html", "sidebar-nav-bs.html"],
+    "**": ["searchbox.html", "globaltoc.html"],
 }
 
 # tell myst_parser to auto-generate anchor links for headers h1, h2, h3
