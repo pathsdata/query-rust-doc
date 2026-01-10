@@ -29,7 +29,7 @@
   --pst-color-h2: var(--color-text-base);
   /* Use softer blue from bootstrap's default info color */
   --pst-color-info: 23, 162, 184;
-  --pst-header-height: 0px;
+  /* --pst-header-height: 0px; */
 }
 
 code {
