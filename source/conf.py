@@ -112,7 +112,7 @@ html_css_files = [
 
 # Sidebar configuration
 html_sidebars = {
-    "**": ["searchbox.html", "globaltoc.html"],
+    "**": ["searchbox.html", "sidebar-nav.html"],
 }
 
 # tell myst_parser to auto-generate anchor links for headers h1, h2, h3
