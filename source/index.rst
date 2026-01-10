@@ -1,4 +1,4 @@
-.. image:: _static/images/2x_bgwhite_original.png
+.. image:: _static/images/logo.png
   :alt: PATHSDATA Logo
   :width: 300
 
