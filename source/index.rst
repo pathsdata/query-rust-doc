@@ -33,17 +33,16 @@ Features
 
    user-guide/index
    user-guide/configuration/index
-   user-guide/iceberg/index
-   user-guide/catalogs/index
    user-guide/python/index
    user-guide/sql/index
 
-.. _toc.library-guide:
+.. _toc.iceberg:
 .. toctree::
    :maxdepth: 2
-   :caption: Library Guide
+   :caption: Apache Iceberg
 
-   library-user-guide/index
+   user-guide/iceberg/index
+   user-guide/catalogs/index
 
 .. _toc.lancedb:
 .. toctree::
@@ -51,6 +50,13 @@ Features
    :caption: LanceDB
 
    user-guide/lancedb/index
+
+.. _toc.library-guide:
+.. toctree::
+   :maxdepth: 2
+   :caption: Library Guide
+
+   library-user-guide/index
 
 .. _toc.links:
 .. toctree::
