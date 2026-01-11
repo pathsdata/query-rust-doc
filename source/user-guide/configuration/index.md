@@ -136,6 +136,26 @@ ctx = SessionContext({
 
 ## Catalog Configuration
 
+### Common Catalog Parameters
+
+All catalog types support these common parameters:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `type` | string | `glue` | Catalog type: `glue`, `rest`, `sql`, `file`, `s3tables` |
+| `branch` | string | `main` | Iceberg branch for all read/write operations |
+
+```python
+# Using a specific branch
+ctx.register_iceberg("warehouse", {
+    "type": "glue",
+    "branch": "dev"  # Use 'dev' branch instead of 'main'
+})
+
+# Query from branch
+df = ctx.sql("SELECT * FROM warehouse.db.table")  # Reads from 'dev' branch
+```
+
 ### Glue Catalog
 
 ```python
@@ -232,6 +252,76 @@ ctx.register_iceberg("s3file", {
     "s3.region": "us-east-1"
 })
 ```
+
+### Catalog Parameters Reference
+
+#### S3 Object Store Parameters
+
+These parameters configure S3 access for Iceberg data files:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `s3.region` | string | `us-east-1` | AWS region for S3 |
+| `s3.access-key-id` | string | From env/IAM | AWS access key ID |
+| `s3.secret-access-key` | string | From env/IAM | AWS secret access key |
+| `s3.session-token` | string | None | Session token for temporary credentials |
+| `s3.endpoint` | string | None | Custom S3 endpoint (LocalStack, MinIO) |
+
+#### Glue Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `glue.region` | string | No | AWS region for Glue API (falls back to s3.region) |
+| `glue.access-key-id` | string | No | Glue-specific access key |
+| `glue.secret-access-key` | string | No | Glue-specific secret key |
+| `glue.session-token` | string | No | Glue-specific session token |
+| `glue.endpoint` | string | No | Custom Glue endpoint (LocalStack) |
+
+#### S3 Tables Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `s3tables.table-bucket-arn` | string | **Yes** | ARN of the S3 Tables bucket |
+| `s3tables.region` | string | No | AWS region for S3 Tables API |
+| `s3tables.access-key-id` | string | No | S3 Tables-specific access key |
+| `s3tables.secret-access-key` | string | No | S3 Tables-specific secret key |
+| `s3tables.session-token` | string | No | S3 Tables-specific session token |
+| `s3tables.endpoint` | string | No | Custom S3 Tables endpoint |
+
+#### REST Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `uri` | string | **Yes** | REST catalog base URL |
+| `rest.token` | string | No | Bearer token for authentication |
+
+#### SQL Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `uri` | string | **Yes** | Database connection string (postgres://, sqlite://) |
+| `warehouse` | string | No | Default warehouse location for new tables |
+
+#### File Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `warehouse` | string | **Yes** | Local filesystem path for warehouse |
+
+### Credential Resolution Order
+
+Credentials are resolved in this priority order:
+
+1. **Catalog-specific config** (e.g., `glue.access-key-id`)
+2. **S3 config** (e.g., `s3.access-key-id`)
+3. **Session-level config** (`SET aws.*` commands)
+4. **AWS SDK credential chain**:
+   - Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+   - Shared credentials file (`~/.aws/credentials`)
+   - AWS config file with profiles/SSO (`~/.aws/config`)
+   - Web identity token (OIDC/Kubernetes)
+   - ECS container credentials (task IAM role)
+   - EC2 instance metadata (IMDSv2)
 
 ## LanceDB Configuration
 
