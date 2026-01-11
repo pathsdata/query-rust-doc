@@ -45,12 +45,12 @@ Features
 
    library-user-guide/index
 
-.. _toc.contributor-guide:
+.. _toc.lancedb:
 .. toctree::
-   :maxdepth: 1
-   :caption: Contributor Guide
+   :maxdepth: 2
+   :caption: LanceDB
 
-   contributor-guide/index
+   user-guide/lancedb/index
 
 .. _toc.links:
 .. toctree::
