@@ -41,18 +41,7 @@ ctx = SessionContext({
 })
 ```
 
-### AWS Options Reference
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `aws.region` | string | AWS region (e.g., "us-east-1") |
-| `aws.profile_name` | string | AWS profile from ~/.aws/credentials or ~/.aws/config |
-| `aws.access_key_id` | string | AWS access key ID |
-| `aws.secret_access_key` | string | AWS secret access key |
-| `aws.session_token` | string | Session token for temporary credentials |
-| `aws.role_arn` | string | IAM role ARN for role assumption |
-| `aws.role_session_name` | string | Session name when assuming role |
-| `aws.endpoint` | string | Custom AWS endpoint URL |
+See [AWS SET Options Reference](#aws-set-options-reference) for all available options.
 
 ### AWS Credential Chain
 
@@ -122,17 +111,7 @@ ctx = SessionContext({
 })
 ```
 
-### S3 Options Reference
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `s3.max_connections` | int | 16 | Maximum concurrent S3 connections |
-| `s3.connect_timeout` | int | 30 | Connection timeout (seconds) |
-| `s3.read_timeout` | int | 60 | Read timeout (seconds) |
-| `s3.region` | string | - | S3-specific region override |
-| `s3.endpoint` | string | - | Custom S3 endpoint |
-| `s3.access_key_id` | string | - | S3-specific access key |
-| `s3.secret_access_key` | string | - | S3-specific secret key |
+See [AWS SET Options Reference](#aws-set-options-reference) for S3 connection pool settings.
 
 ## Catalog Configuration
 
@@ -426,25 +405,7 @@ ctx = SessionContext({
 })
 ```
 
-### Execution Options Reference
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `target_partitions` | int | CPU cores | Parallelism level |
-| `batch_size` | int | 8192 | Rows per batch |
-| `memory_limit` | string | - | Memory limit (e.g., "4GB") |
-| `coalesce_batches` | bool | true | Combine small batches |
-| `collect_statistics` | bool | true | Collect query statistics |
-
-### Parquet Options Reference
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `pushdown_filters` | bool | true | Push filters to Parquet reader |
-| `reorder_filters` | bool | true | Optimize filter order |
-| `enable_page_index` | bool | true | Use page-level statistics |
-| `pruning` | bool | true | Enable row group pruning |
-| `bloom_filter_on_read` | bool | true | Use bloom filters |
+See [DataFusion SET Options Reference](#datafusion-set-options-reference) for all execution and Parquet options.
 
 ## Iceberg Streaming Configuration
 
@@ -470,15 +431,7 @@ ctx.sql("SET iceberg.buffer_size = 4")
 ctx.sql("SET iceberg.parallel_manifest_reads = true")
 ```
 
-### Iceberg Options Reference
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `iceberg.max_concurrent_files` | int | 4 | Max data files to read in parallel |
-| `iceberg.max_concurrent_partitions` | int | 8 | Max partitions to write in parallel |
-| `iceberg.max_concurrent_writers` | int | 10 | Max concurrent write operations (INSERTs) |
-| `iceberg.buffer_size` | int | 2 | Record batches buffered per stream |
-| `iceberg.parallel_manifest_reads` | bool | true | Enable parallel manifest file reading |
+See [Iceberg SET Options Reference](#iceberg-set-options-reference) for all options.
 
 ### Performance Presets
 
