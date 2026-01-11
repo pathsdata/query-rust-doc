@@ -371,18 +371,212 @@ OPTIONS (
 
 ## LanceDB Configuration
 
+LanceDB provides vector database capabilities with multiple catalog backends for different deployment scenarios.
+
+### Supported Catalogs
+
+| Catalog | Type | Use Case |
+|---------|------|----------|
+| File Catalog | `file` | Local development, single-machine deployments |
+| S3 Catalog | `s3` | Enterprise S3-based data lakes, multi-tenant |
+| Memory Catalog | `memory` | Testing, prototyping, ephemeral workloads |
+| Glue Catalog | `glue` | AWS Glue ecosystem integration |
+
+### File Catalog
+
+Local filesystem or cloud storage via object_store:
+
 ```python
-# Local LanceDB
+# Local filesystem
 ctx.register_lancedb("vectors", {
+    "type": "file",
     "uri": "/path/to/lancedb"
 })
 
-# S3-backed LanceDB
+# S3-backed file catalog
 ctx.register_lancedb("vectors", {
+    "type": "file",
     "uri": "s3://my-bucket/lancedb/",
     "s3.region": "us-east-1"
 })
 ```
+
+### S3 Catalog
+
+Enterprise S3-based metadata storage with separate data warehouse:
+
+```python
+ctx.register_lancedb("vectors", {
+    "type": "s3",
+    "bucket": "my-catalog-bucket",
+    "prefix": "lancedb",  # Optional prefix in bucket
+
+    # S3 credentials
+    "s3.region": "us-east-1",
+    "s3.access-key-id": "AKIA...",
+    "s3.secret-access-key": "...",
+
+    # Optional: custom endpoint for MinIO/LocalStack
+    "s3.endpoint": "http://localhost:9000",
+    "s3.path-style-access": "true",
+    "s3.allow-http": "true"
+})
+
+# Create namespace with warehouse path (required for S3 catalog)
+ctx.sql("""
+    CREATE SCHEMA vectors.analytics
+    WITH ('warehouse_path' = 's3://data-bucket/warehouse/')
+""")
+```
+
+#### S3 Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `bucket` | string | **Yes** | S3 bucket for catalog metadata |
+| `prefix` | string | No | Prefix path within bucket |
+| `s3.region` | string | **Yes** | AWS region |
+| `s3.access-key-id` | string | No | AWS access key (uses credential chain if not set) |
+| `s3.secret-access-key` | string | No | AWS secret key |
+| `s3.session-token` | string | No | Session token for temporary credentials |
+| `s3.endpoint` | string | No | Custom S3 endpoint (MinIO, LocalStack, R2) |
+| `s3.path-style-access` | bool | No | Use path-style URLs (required for MinIO) |
+| `s3.allow-http` | bool | No | Allow non-HTTPS connections (dev only) |
+
+### Memory Catalog
+
+In-memory catalog for testing and ephemeral workloads:
+
+```python
+ctx.register_lancedb("test_vectors", {
+    "type": "memory"
+})
+
+# All data is temporary and will be lost when session ends
+```
+
+### Glue Catalog
+
+AWS Glue Data Catalog integration with S3 storage:
+
+```python
+# From environment credentials
+ctx.register_lancedb("vectors", {
+    "type": "glue"
+})
+
+# With explicit configuration
+ctx.register_lancedb("vectors", {
+    "type": "glue",
+    "glue.region": "us-east-1",
+    "s3.region": "us-east-1",
+
+    # Optional: explicit credentials
+    "glue.access-key-id": "AKIA...",
+    "glue.secret-access-key": "...",
+
+    # Optional: custom endpoint (LocalStack)
+    "glue.endpoint": "http://localhost:4566"
+})
+```
+
+#### Glue Catalog Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `glue.region` | string | No | AWS region (falls back to s3.region) |
+| `glue.access-key-id` | string | No | Glue-specific access key |
+| `glue.secret-access-key` | string | No | Glue-specific secret key |
+| `glue.session-token` | string | No | Glue-specific session token |
+| `glue.endpoint` | string | No | Custom Glue endpoint (LocalStack) |
+| `s3.region` | string | **Yes** | S3 region for data storage |
+
+### Vector Index Types
+
+LanceDB supports multiple vector index types for similarity search:
+
+| Index Type | Algorithm | Use Case |
+|-----------|-----------|----------|
+| `IVF_PQ` | Inverted File + Product Quantization | **Default**, balanced performance/memory |
+| `IVF_HNSW_SQ` | IVF + HNSW + Scalar Quantization | Fast search, moderate memory |
+| `IVF_HNSW_PQ` | IVF + HNSW + Product Quantization | Fast search, low memory |
+| `IVF_FLAT` | Inverted File (exact) | Highest recall, higher memory |
+| `FLAT` | Brute force (exact search) | Small datasets, exact match |
+
+### Distance Metrics
+
+| Metric | Value | Use Case |
+|--------|-------|----------|
+| L2 (Euclidean) | `L2` | General-purpose (default) |
+| Cosine | `COSINE` | Text embeddings, normalized vectors |
+| Dot Product | `DOT` | Maximum inner product search |
+
+### Vector Search Examples
+
+```sql
+-- Create table with embedding column
+CREATE TABLE vectors.default.products (
+    id BIGINT,
+    name STRING,
+    embedding ARRAY<FLOAT>
+);
+
+-- Create vector index
+CREATE INDEX idx_embedding ON vectors.default.products
+USING IVF_PQ (embedding)
+WITH (
+    distance_type = 'COSINE',
+    num_partitions = 256,
+    num_sub_vectors = 96
+);
+
+-- Vector similarity search
+SELECT id, name, l2_distance(embedding, ARRAY[0.1, 0.2, ...]) as distance
+FROM vectors.default.products
+ORDER BY distance
+LIMIT 10;
+
+-- Hybrid search: SQL filter + vector similarity
+SELECT id, name, cosine_distance(embedding, ARRAY[0.1, 0.2, ...]) as distance
+FROM vectors.default.products
+WHERE category = 'Electronics' AND price < 500
+ORDER BY distance
+LIMIT 10;
+```
+
+### Full-Text Search
+
+```sql
+-- Create full-text index
+CREATE INDEX idx_description ON vectors.default.products
+USING FTS (description);
+
+-- Full-text search
+SELECT id, name, fts_score(description, 'wireless headphones') as score
+FROM vectors.default.products
+WHERE fts_match(description, 'wireless headphones')
+ORDER BY score DESC
+LIMIT 10;
+
+-- Hybrid: Vector + Full-text search
+SELECT id, name,
+    0.7 * cosine_distance(embedding, query_vec) +
+    0.3 * fts_score(description, 'headphones') as combined_score
+FROM vectors.default.products
+WHERE fts_match(description, 'headphones')
+ORDER BY combined_score
+LIMIT 10;
+```
+
+### Choosing a Catalog
+
+| Scenario | Recommended | Reason |
+|----------|-------------|--------|
+| Local development | File Catalog | Simple setup, no AWS required |
+| Unit tests | Memory Catalog | Fast, ephemeral, no disk I/O |
+| AWS S3 data lake | S3 Catalog | Enterprise pattern, multi-tenant |
+| AWS Glue ecosystem | Glue Catalog | Native Glue integration |
+| MinIO/LocalStack | S3 Catalog + custom endpoint | S3-compatible storage |
 
 ## Query Execution Configuration
 
