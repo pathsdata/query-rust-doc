@@ -323,6 +323,73 @@ Credentials are resolved in this priority order:
    - ECS container credentials (task IAM role)
    - EC2 instance metadata (IMDSv2)
 
+## Iceberg Table Options
+
+These options are used in `CREATE EXTERNAL TABLE ... OPTIONS (...)` statements:
+
+### Table Creation Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `iceberg.format-version` | string | `2` | Iceberg format version: `1`, `2`, or `3` |
+| `file-format` | string | `parquet` | File format: `parquet`, `avro`, `orc` |
+
+### Examples
+
+#### Create Iceberg V3 Table
+
+```sql
+CREATE EXTERNAL TABLE warehouse.db.events (
+    id BIGINT,
+    event_time TIMESTAMP,
+    event_type STRING,
+    user_id BIGINT
+)
+STORED AS ICEBERG
+PARTITIONED BY (day(event_time))
+LOCATION 's3://bucket/events'
+OPTIONS ('iceberg.format-version' '3');
+```
+
+#### Create Table with Avro Format
+
+```sql
+CREATE EXTERNAL TABLE warehouse.db.logs (
+    timestamp TIMESTAMP,
+    level STRING,
+    message STRING
+)
+STORED AS ICEBERG
+LOCATION 's3://bucket/logs'
+OPTIONS ('file-format' 'avro');
+```
+
+#### Create V3 Table with Parquet (Default)
+
+```sql
+CREATE EXTERNAL TABLE warehouse.db.users (
+    id BIGINT,
+    name STRING,
+    email STRING,
+    created_at TIMESTAMP
+)
+STORED AS ICEBERG
+PARTITIONED BY (bucket(16, id))
+LOCATION 's3://bucket/users'
+OPTIONS (
+    'iceberg.format-version' '3',
+    'file-format' 'parquet'
+);
+```
+
+### Iceberg Format Version Comparison
+
+| Version | Features |
+|---------|----------|
+| V1 | Basic Iceberg features, schema evolution |
+| V2 | Row-level deletes, position deletes, equality deletes |
+| V3 | Default values, multi-arg transforms, nanosecond timestamps |
+
 ## LanceDB Configuration
 
 ```python
