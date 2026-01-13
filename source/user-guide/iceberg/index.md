@@ -68,6 +68,104 @@ ctx.register_iceberg("local", {
 })
 ```
 
+## Iceberg Format Versions
+
+PATHSDATA supports Iceberg format versions 1, 2, and 3:
+
+| Version | Features |
+|---------|----------|
+| **V1** | Basic table format, append-only |
+| **V2** | Row-level deletes, position deletes, equality deletes |
+| **V3** | Column defaults, nanosecond timestamps, row lineage |
+
+### Creating Tables with Format Version
+
+```sql
+-- Create V3 table (recommended for new tables)
+CREATE EXTERNAL TABLE warehouse.db.events (
+    id BIGINT,
+    event_time TIMESTAMP,
+    data STRING
+)
+STORED AS ICEBERG
+LOCATION 's3://bucket/events'
+OPTIONS ('iceberg.format-version' '3');
+
+-- Create V2 table (default)
+CREATE EXTERNAL TABLE warehouse.db.events (
+    id BIGINT,
+    data STRING
+)
+STORED AS ICEBERG
+LOCATION 's3://bucket/events'
+OPTIONS ('iceberg.format-version' '2');
+```
+
+## Iceberg V3 Features
+
+### Column Default Values
+
+V3 supports two types of column defaults:
+
+| Default Type | Description | When Applied |
+|--------------|-------------|--------------|
+| `initial-default` | Value for existing rows when column is added | Schema evolution (backfill) |
+| `write-default` | Value for new rows when column not specified | INSERT operations |
+
+```sql
+-- Create table with default values (V3)
+CREATE EXTERNAL TABLE warehouse.db.users (
+    id BIGINT,
+    name STRING,
+    status STRING DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+STORED AS ICEBERG
+LOCATION 's3://bucket/users'
+OPTIONS ('iceberg.format-version' '3');
+
+-- Add column with defaults (schema evolution)
+ALTER TABLE warehouse.db.users
+ADD COLUMN country STRING DEFAULT 'US';
+-- Existing rows will have country = 'US'
+-- New inserts without country will also get 'US'
+```
+
+### Nanosecond Timestamp Precision
+
+V3 adds support for nanosecond-precision timestamps:
+
+| Type | Precision | V3 Only |
+|------|-----------|---------|
+| `TIMESTAMP` | Microseconds | No |
+| `TIMESTAMPTZ` | Microseconds with timezone | No |
+| `TIMESTAMP_NS` | Nanoseconds | Yes |
+| `TIMESTAMPTZ_NS` | Nanoseconds with timezone | Yes |
+
+```sql
+-- V3 table with nanosecond timestamps
+CREATE EXTERNAL TABLE warehouse.db.high_freq_events (
+    id BIGINT,
+    event_time TIMESTAMP_NS,
+    event_time_tz TIMESTAMPTZ_NS,
+    data STRING
+)
+STORED AS ICEBERG
+LOCATION 's3://bucket/hf_events'
+OPTIONS ('iceberg.format-version' '3');
+```
+
+### Row Lineage (V3)
+
+V3 tracks row-level lineage for Copy-on-Write operations, enabling:
+- Row-level audit trails
+- Incremental processing
+- Change data capture (CDC)
+
+Each row in V3 tables has metadata columns:
+- `_row_id`: Unique row identifier
+- `_last_sequence_number`: Sequence number of last modification
+
 ## Table Operations
 
 ### Creating Tables
@@ -95,6 +193,20 @@ CREATE EXTERNAL TABLE warehouse.analytics.events (
 STORED AS ICEBERG
 PARTITIONED BY (day(event_time))
 LOCATION 's3://my-bucket/analytics/events'
+
+-- With format version and file format
+CREATE EXTERNAL TABLE warehouse.analytics.events (
+    id BIGINT,
+    event_time TIMESTAMP,
+    data STRING
+)
+STORED AS ICEBERG
+PARTITIONED BY (day(event_time))
+LOCATION 's3://my-bucket/events'
+OPTIONS (
+    'iceberg.format-version' '3',
+    'file-format' 'parquet'
+);
 ```
 
 **Note**: `LOCATION` is optional. If omitted, the table location is auto-generated as `{namespace}/{table_name}`.
